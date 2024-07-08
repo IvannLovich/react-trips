@@ -1,9 +1,9 @@
 export type FormType = {
-  cityNameRef?: React.RefObject<HTMLInputElement>;
+  cityName?: string | undefined;
   currentDay: Date;
-  departureDayRef?: React.RefObject<HTMLInputElement>;
-  arrivalDayRef?: React.RefObject<HTMLInputElement>;
-  // handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  departureDay?: Date | null;
+  arrivalDay?: Data | null;
+  handleChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   submitCity?: (event: React.FormEvent<HTMLFormElement>) => void;
 };
 
@@ -17,7 +17,7 @@ export type GeoLocation = {
 export type Travels = {
   id: string;
   destinationName: string | undefined;
-  tripDate: Date | null;
+  tripDate: Date | null | undefined;
   daysLeft: number | undefined;
   temperature: number | undefined;
 };

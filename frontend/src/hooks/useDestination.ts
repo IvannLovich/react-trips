@@ -1,5 +1,6 @@
 import { useCallback, useState, useEffect } from 'react';
-import { validateDates } from '../helpers';
+// import { validateDates } from '../helpers';
+import { debounce } from 'lodash';
 import { FormType } from '../types';
 
 const GEO_NAMES_API_USERNAME = 'ivoelflaco';
@@ -8,40 +9,35 @@ const GEO_NAMES_API = `http://api.geonames.org/postalCodeLookupJSON?username=${G
 export function useDestination(args: FormType): {
   latitude: number | undefined;
   longitude: number | undefined;
-  city: string | undefined;
-  refreshLatitudeLongitude: () => void;
+  refreshLatitudeLongitude: ({
+    cityName,
+  }: {
+    cityName: string | undefined;
+  }) => Promise<void> | undefined;
 } {
-  const { cityNameRef, currentDay, departureDayRef, arrivalDayRef } = args;
+  const { cityName } = args;
 
   const [latitude, setLatitude] = useState<number | undefined>();
   const [longitude, setLongitude] = useState<number | undefined>();
-  const [city, setCity] = useState<string | undefined>();
 
-  const refreshLatitudeLongitude = useCallback(async () => {
-    const cityName = cityNameRef?.current?.value || '';
-    const departureDay = departureDayRef?.current?.value
-      ? new Date(departureDayRef.current.value)
-      : null;
-    const arrivalDay = arrivalDayRef?.current?.value
-      ? new Date(arrivalDayRef.current.value)
-      : null;
-
-    if (!validateDates({ cityName, currentDay, departureDay, arrivalDay })) {
-      console.log('por acá');
-    } else {
-      const response = await fetch(`${GEO_NAMES_API}&placename=${cityName}`);
-      const data = await response.json();
-      const latitude = data.postalcodes[0].lat;
-      const longitude = data.postalcodes[0].lng;
-      setLatitude(latitude);
-      setLongitude(longitude);
-      setCity(cityName);
-    }
-  }, [cityNameRef, currentDay, departureDayRef, arrivalDayRef]);
+  const refreshLatitudeLongitude = useCallback(
+    debounce(async ({ cityName }: { cityName: string | undefined }) => {
+      if (cityName) {
+        const response = await fetch(`${GEO_NAMES_API}&placename=${cityName}`);
+        const data = await response.json();
+        const latitude = data.postalcodes[0].lat;
+        const longitude = data.postalcodes[0].lng;
+        setLatitude(latitude);
+        setLongitude(longitude);
+      }
+    }, 1000),
+    []
+  );
 
   useEffect(() => {
-    refreshLatitudeLongitude();
-  }, [refreshLatitudeLongitude]);
+    refreshLatitudeLongitude({ cityName });
+    return refreshLatitudeLongitude.cancel;
+  }, [cityName, refreshLatitudeLongitude]);
 
-  return { latitude, longitude, city, refreshLatitudeLongitude };
+  return { latitude, longitude, refreshLatitudeLongitude };
 }

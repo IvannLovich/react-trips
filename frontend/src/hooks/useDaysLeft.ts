@@ -3,16 +3,13 @@ import { FormType } from '../types';
 
 export function useDaysLeft(args: FormType): {
   days: number;
-  daysLeftToTrip: () => void;
+  daysLeftToTrip: () => Promise<void>;
 } {
-  const { currentDay, departureDayRef } = args;
+  const { currentDay, departureDay } = args;
 
   const [days, setDays] = useState(0);
 
-  const daysLeftToTrip = useCallback(() => {
-    const departureDay = departureDayRef?.current?.value
-      ? new Date(departureDayRef.current.value)
-      : null;
+  const daysLeftToTrip = useCallback(async () => {
     if (departureDay && currentDay) {
       // One day in milliseconds
       const oneDay = 24 * 60 * 60 * 1000;
@@ -32,7 +29,7 @@ export function useDaysLeft(args: FormType): {
     } else {
       setDays(0);
     }
-  }, [currentDay, departureDayRef]);
+  }, [currentDay, departureDay]);
 
   useEffect(() => {
     daysLeftToTrip();

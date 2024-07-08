@@ -1,12 +1,12 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { GeoLocation } from '../types';
 
-const WEATHER_API_KEY = 'df3f9962801a45f98ea261f51b54ef17';
+const WEATHER_API_KEY = 'ed4f317324314dad9fb17ed968a335e0';
 const WEATHER_API = `https://api.weatherbit.io/v2.0/current?key=${WEATHER_API_KEY}&include=minutely`;
 
 export function useWeather(args: GeoLocation): {
   temperature: number | undefined;
-  getWeatherInfo: () => void;
+  getWeatherInfo: () => Promise<void> | undefined;
 } {
   const { latitude, longitude } = args;
   const [temperature, setTemperature] = useState<number | undefined>();
@@ -30,6 +30,10 @@ export function useWeather(args: GeoLocation): {
       }
     }
   }, [latitude, longitude]);
+
+  useEffect(() => {
+    getWeatherInfo();
+  }, [getWeatherInfo]);
 
   return { temperature, getWeatherInfo };
 }

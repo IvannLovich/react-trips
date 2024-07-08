@@ -1,73 +1,74 @@
 import NavBar from './components/NavBar';
 import Form from './components/Form';
 import Trips from './components/Trips';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useDestination } from './hooks/useDestination';
 import { useDaysLeft } from './hooks/useDaysLeft';
+import { useWeather } from './hooks/useWeather';
+import { Travels } from './types';
 
 import './App.css';
 import './styles/main.css';
-import { useWeather } from './hooks/useWeather';
+
+import uniqid from 'uniqid';
 
 const currentDay = new Date();
 function App() {
-  const [travels, setTravels] = useState([]);
-  const cityNameRef = useRef<HTMLInputElement>(null);
-  const departureDayRef = useRef<HTMLInputElement>(null);
-  const arrivalDayRef = useRef<HTMLInputElement>(null);
+  const [travels, setTravels] = useState<Travels[]>([]);
+  const [cityName, setCityName] = useState<string | undefined>();
+  const [departureDay, setDepartureDay] = useState<Date | null>();
+  const [arrivalDay, setArrivalDay] = useState<Date | null>();
 
-  const { latitude, longitude, city, refreshLatitudeLongitude } =
-    useDestination({
-      cityNameRef,
-      currentDay,
-      departureDayRef,
-      arrivalDayRef,
-    });
+  const { latitude, longitude, refreshLatitudeLongitude } = useDestination({
+    cityName,
+    currentDay,
+    departureDay,
+    arrivalDay,
+  });
   const { temperature, getWeatherInfo } = useWeather({ latitude, longitude });
-  const { days, daysLeftToTrip } = useDaysLeft({ currentDay, departureDayRef });
+  const { days, daysLeftToTrip } = useDaysLeft({ currentDay, departureDay });
 
   // useEffect(() => {
   //   console.log('new latitude and longitude');
   // }, [refreshLatitudeLongitude]);
 
-  useEffect(() => {
-    if (latitude && longitude) {
-      getWeatherInfo();
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+
+    switch (name) {
+      case 'location':
+        setCityName(value);
+        break;
+      case 'start':
+        setDepartureDay(new Date(value));
+        break;
+      case 'end':
+        setArrivalDay(new Date(value));
+        break;
+      default:
+        break;
     }
-  }, [latitude, longitude, getWeatherInfo]);
-
-  // const handleChange = useCallback(
-  //   (event: React.ChangeEvent<HTMLInputElement>) => {
-  //     const { name, value } = event.target;
-
-  //     switch (name) {
-  //       case 'location':
-  //         setCityName(value);
-  //         break;
-  //       case 'start':
-  //         setDepartureDay(new Date(value));
-  //         break;
-  //       case 'end':
-  //         setArrivalDay(new Date(value));
-  //         break;
-  //       default:
-  //         break;
-  //     }
-  //   },
-  //   []
-  // );
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // Call refreshLatitudeLongitude with the current values
-    refreshLatitudeLongitude();
-    daysLeftToTrip();
+    await refreshLatitudeLongitude({ cityName });
+    await daysLeftToTrip();
+    await getWeatherInfo();
+
+    setTravels((prevTravels) => [
+      ...prevTravels,
+      {
+        id: uniqid(),
+        destinationName: cityName,
+        tripDate: departureDay,
+        daysLeft: days,
+        temperature: temperature,
+      },
+    ]);
   };
 
-  console.log(days);
-  console.log(city);
-  console.log(temperature);
   return (
     <div>
       <header className="header">
@@ -76,14 +77,14 @@ function App() {
       <main className="main">
         <section>
           <Form
-            cityNameRef={cityNameRef}
-            departureDayRef={departureDayRef}
-            arrivalDayRef={arrivalDayRef}
-            // handleChange={handleChange}
+            cityName={cityName}
+            departureDay={departureDay}
+            arrivalDay={arrivalDay}
+            handleChange={handleChange}
             submitCity={handleSubmit}
           />
         </section>
-        <section>{temperature && <Trips daysLeft={days} />}</section>
+        <section>{travels && <Trips travels={travels} />}</section>
       </main>
     </div>
   );

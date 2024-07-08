@@ -2,10 +2,10 @@ import { FormProps } from '../types';
 import '../styles/form.css';
 
 export default function Form({
-  cityNameRef,
-  departureDayRef,
-  arrivalDayRef,
-  // handleChange,
+  cityName,
+  departureDay,
+  arrivalDay,
+  handleChange,
   submitCity,
 }: FormProps) {
   return (
@@ -17,10 +17,9 @@ export default function Form({
             className="main__form input"
             type="text"
             name="location"
-            ref={cityNameRef}
-            // value={city || ''}
+            value={cityName || ''}
             placeholder="Amsterdam, London, Bariloche..."
-            // onChange={handleChange}
+            onChange={handleChange}
             required
           />
           <input
@@ -28,7 +27,10 @@ export default function Form({
             className="main__form input"
             type="date"
             name="start"
-            ref={departureDayRef}
+            value={
+              departureDay ? departureDay.toISOString().substring(0, 10) : ''
+            }
+            onChange={handleChange}
             required
           />
           <input
@@ -36,7 +38,8 @@ export default function Form({
             className="main__form input"
             type="date"
             name="end"
-            ref={arrivalDayRef}
+            value={arrivalDay ? arrivalDay.toISOString().substring(0, 10) : ''}
+            onChange={handleChange}
           />
         </div>
         <div className="main__form button--container">
