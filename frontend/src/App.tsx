@@ -75,7 +75,7 @@ function App() {
         <NavBar />
       </header>
       <main className="main">
-        <section>
+        <section id="form">
           <Form
             cityName={cityName}
             departureDay={departureDay}
@@ -84,7 +84,7 @@ function App() {
             submitCity={handleSubmit}
           />
         </section>
-        <section>{travels && <Trips travels={travels} />}</section>
+        <section id="results">{travels && <Trips travels={travels} />}</section>
       </main>
     </div>
   );
