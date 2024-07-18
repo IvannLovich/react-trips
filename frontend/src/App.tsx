@@ -1,11 +1,10 @@
 import NavBar from './components/NavBar';
 import Form from './components/Form';
 import Trips from './components/Trips';
-import { useState, useEffect } from 'react';
 import { useDestination } from './hooks/useDestination';
 import { useDaysLeft } from './hooks/useDaysLeft';
 import { useWeather } from './hooks/useWeather';
-import { Travels } from './types';
+import { useForm } from './hooks/useForm';
 
 import './App.css';
 import './styles/main.css';
@@ -14,10 +13,16 @@ import uniqid from 'uniqid';
 
 const currentDay = new Date();
 function App() {
-  const [travels, setTravels] = useState<Travels[]>([]);
-  const [cityName, setCityName] = useState<string | undefined>();
-  const [departureDay, setDepartureDay] = useState<Date | null>();
-  const [arrivalDay, setArrivalDay] = useState<Date | null>();
+  const {
+    travels,
+    addNewTravel,
+    cityName,
+    choiseNewCity,
+    departureDay,
+    choiseDepartureDay,
+    arrivalDay,
+    choiseArrivalDay,
+  } = useForm();
 
   const { latitude, longitude, refreshLatitudeLongitude } = useDestination({
     cityName,
@@ -37,13 +42,13 @@ function App() {
 
     switch (name) {
       case 'location':
-        setCityName(value);
+        choiseNewCity(value);
         break;
       case 'start':
-        setDepartureDay(new Date(value));
+        choiseDepartureDay(new Date(value));
         break;
       case 'end':
-        setArrivalDay(new Date(value));
+        choiseArrivalDay(new Date(value));
         break;
       default:
         break;
@@ -57,16 +62,15 @@ function App() {
     await daysLeftToTrip();
     await getWeatherInfo();
 
-    setTravels((prevTravels) => [
-      ...prevTravels,
-      {
-        id: uniqid(),
-        destinationName: cityName,
-        tripDate: departureDay,
-        daysLeft: days,
-        temperature: temperature,
-      },
-    ]);
+    const newTrip = {
+      id: uniqid(),
+      destinationName: cityName,
+      tripDate: departureDay,
+      daysLeft: days,
+      temperature: temperature,
+    };
+
+    addNewTravel(newTrip);
   };
 
   return (

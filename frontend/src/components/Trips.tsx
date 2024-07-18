@@ -8,7 +8,11 @@ export default function Trips({ travels }: { travels: Travels[] }) {
         <div className="main__results card" key={index}>
           <div className="main__results card--content">
             <strong className="main__results card--title">
-              My Trip to: {trip.destinationName}
+              My Trip to:{' '}
+              {trip.destinationName
+                ? trip.destinationName.charAt(0).toUpperCase() +
+                  trip.destinationName.slice(1)
+                : ''}
             </strong>
             <div className="main__results card--details">
               <div className="main__results card--detail">
