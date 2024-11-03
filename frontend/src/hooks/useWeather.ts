@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from 'react';
 import { GeoLocation } from '../types';
 
-const WEATHER_API_KEY = 'ed4f317324314dad9fb17ed968a335e0';
+const WEATHER_API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
 const WEATHER_API = `https://api.weatherbit.io/v2.0/current?key=${WEATHER_API_KEY}&include=minutely`;
 
 export function useWeather(args: GeoLocation): {

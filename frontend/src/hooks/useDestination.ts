@@ -3,7 +3,7 @@ import { useCallback, useState, useEffect } from 'react';
 import { debounce } from 'lodash';
 import { FormType } from '../types';
 
-const GEO_NAMES_API_USERNAME = 'ivoelflaco';
+const GEO_NAMES_API_USERNAME = import.meta.env.VITE_GEONAMES_API_USERNAME;
 const GEO_NAMES_API = `http://api.geonames.org/postalCodeLookupJSON?username=${GEO_NAMES_API_USERNAME}`;
 
 export function useDestination(args: FormType): {
